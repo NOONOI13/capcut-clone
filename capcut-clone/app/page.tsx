@@ -1,27 +1,22 @@
 "use client";
 import { useState } from "react";
-
 export default function Home() {
   const [video, setVideo] = useState<File | null>(null);
   const [status, setStatus] = useState("พร้อม");
   const [audioUrl, setAudioUrl] = useState("");
-
   const extractAudio = async () => {
     if (!video) { setStatus("กรุณาเลือกไฟล์ก่อน"); return; }
     setStatus("กำลังโหลด FFmpeg...");
     const { FFmpeg } = await import("@ffmpeg/ffmpeg");
     const { fetchFile } = await import("@ffmpeg/util");
-    const ffmpeg = new FFmpeg();
-    await ffmpeg.load();
+    const ffmpeg = new FFmpeg(); await ffmpeg.load();
     setStatus("กำลังแยกเสียง...");
     await ffmpeg.writeFile("input.mp4", await fetchFile(video));
     await ffmpeg.exec(["-i", "input.mp4", "-vn", "-c:a", "libmp3lame", "output.mp3"]);
     const data = await ffmpeg.readFile("output.mp3");
     const url = URL.createObjectURL(new Blob([data as any], { type: "audio/mp3" }));
-    setAudioUrl(url);
-    setStatus("เสร็จแล้ว!");
+    setAudioUrl(url); setStatus("เสร็จแล้ว!");
   };
-
   return (
     <main className="min-h-screen bg-black text-white p-10 flex flex-col items-center">
       <h1 className="text-3xl font-bold mb-6">MyCut Clone - Web Version</h1>
